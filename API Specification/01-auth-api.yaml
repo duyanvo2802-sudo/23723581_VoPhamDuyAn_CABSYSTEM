@@ -1,0 +1,106 @@
+openapi: 3.0.4
+
+info:
+  title: CAB System - Authentication API
+  description: API xác thực người dùng cho hệ thống CAB System
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api
+
+tags:
+  - name: Authentication
+    description: Đăng ký và đăng nhập
+
+paths:
+
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Đăng ký tài khoản khách hàng
+      operationId: registerCustomer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fullName
+                - phone
+                - password
+              properties:
+                fullName:
+                  type: string
+                  example: Nguyen Van An
+                phone:
+                  type: string
+                  example: "0901234567"
+                password:
+                  type: string
+                  format: password
+                  example: "Password123"
+
+      responses:
+        "201":
+          description: Đăng ký tài khoản thành công
+        "400":
+          description: Dữ liệu đăng ký không hợp lệ
+        "409":
+          description: Tài khoản đã tồn tại
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Đăng nhập hệ thống
+      operationId: login
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+                - password
+              properties:
+                phone:
+                  type: string
+                  example: "0901234567"
+                password:
+                  type: string
+                  format: password
+                  example: "Password123"
+
+      responses:
+        "200":
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIs...
+                  role:
+                    type: string
+                    enum:
+                      - CUSTOMER
+                      - DRIVER
+                      - STAFF
+                      - ADMIN
+                    example: CUSTOMER
+        "401":
+          description: Sai thông tin đăng nhập
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
