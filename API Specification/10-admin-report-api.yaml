@@ -1,0 +1,198 @@
+openapi: 3.0.4
+
+info:
+  title: CAB System - Admin & Report API
+  description: API quản trị, vận hành và báo cáo
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api
+
+tags:
+  - name: Admin
+    description: Quản trị hệ thống
+  - name: Reports
+    description: Báo cáo và thống kê
+
+paths:
+
+  /admin/customers:
+    get:
+      tags:
+        - Admin
+      summary: Danh sách khách hàng
+      operationId: getCustomers
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        "200":
+          description: Danh sách khách hàng
+        "403":
+          description: Không có quyền truy cập
+
+  /admin/drivers:
+    get:
+      tags:
+        - Admin
+      summary: Danh sách tài xế
+      operationId: getDrivers
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        "200":
+          description: Danh sách tài xế
+        "403":
+          description: Không có quyền truy cập
+
+  /admin/trips:
+    get:
+      tags:
+        - Admin
+      summary: Danh sách chuyến đi
+      operationId: getTrips
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        "200":
+          description: Danh sách chuyến đi
+        "403":
+          description: Không có quyền truy cập
+
+  /admin/audit-logs:
+    get:
+      tags:
+        - Admin
+      summary: Xem nhật ký hoạt động
+      operationId: getAuditLogs
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        "200":
+          description: Danh sách nhật ký hoạt động
+        "403":
+          description: Không có quyền truy cập
+
+  /reports/trips:
+    get:
+      tags:
+        - Reports
+      summary: Báo cáo số lượng chuyến
+      operationId: getTripReport
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2026-09-01"
+
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2026-09-30"
+
+      responses:
+        "200":
+          description: Báo cáo chuyến đi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TripReport"
+
+  /reports/revenue:
+    get:
+      tags:
+        - Reports
+      summary: Báo cáo doanh thu
+      operationId: getRevenueReport
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+
+      responses:
+        "200":
+          description: Báo cáo doanh thu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevenueReport"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    TripReport:
+      type: object
+      properties:
+        totalTrips:
+          type: integer
+          example: 1250
+        completedTrips:
+          type: integer
+          example: 1100
+        cancelledTrips:
+          type: integer
+          example: 100
+        failedTrips:
+          type: integer
+          example: 50
+        completionRate:
+          type: number
+          format: double
+          example: 88.0
+        cancellationRate:
+          type: number
+          format: double
+          example: 8.0
+
+    RevenueReport:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        totalRevenue:
+          type: number
+          format: double
+          example: 125000000
+        currency:
+          type: string
+          example: VND
