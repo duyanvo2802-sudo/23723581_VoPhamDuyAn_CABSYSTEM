@@ -1,0 +1,155 @@
+openapi: 3.0.4
+
+info:
+  title: CAB System - Driver API
+  description: API quản lý tài xế
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api
+
+tags:
+  - name: Driver
+    description: Quản lý tài xế
+
+paths:
+
+  /drivers/me:
+    get:
+      tags:
+        - Driver
+      summary: Xem hồ sơ tài xế
+      operationId: getDriverProfile
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        "200":
+          description: Hồ sơ tài xế
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Driver"
+
+    put:
+      tags:
+        - Driver
+      summary: Cập nhật hồ sơ tài xế
+      operationId: updateDriverProfile
+
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullName:
+                  type: string
+                  example: Tran Van B
+                phone:
+                  type: string
+                  example: "0912345678"
+
+      responses:
+        "200":
+          description: Cập nhật thành công
+
+  /drivers/me/status:
+    patch:
+      tags:
+        - Driver
+      summary: Cập nhật trạng thái hoạt động
+      operationId: updateDriverStatus
+
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - AVAILABLE
+                    - BUSY
+                    - OFFLINE
+                    - ON_TRIP
+                  example: AVAILABLE
+
+      responses:
+        "200":
+          description: Cập nhật trạng thái thành công
+        "400":
+          description: Trạng thái không hợp lệ
+
+  /drivers/me/location:
+    patch:
+      tags:
+        - Driver
+      summary: Cập nhật vị trí tài xế
+      operationId: updateDriverLocation
+
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - latitude
+                - longitude
+              properties:
+                latitude:
+                  type: number
+                  format: double
+                  example: 10.7769
+                longitude:
+                  type: number
+                  format: double
+                  example: 106.7009
+
+      responses:
+        "200":
+          description: Cập nhật vị trí thành công
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Driver:
+      type: object
+      properties:
+        id:
+          type: string
+          example: DRV001
+        fullName:
+          type: string
+          example: Tran Van B
+        phone:
+          type: string
+          example: "0912345678"
+        status:
+          type: string
+          enum:
+            - AVAILABLE
+            - BUSY
+            - OFFLINE
+            - ON_TRIP
