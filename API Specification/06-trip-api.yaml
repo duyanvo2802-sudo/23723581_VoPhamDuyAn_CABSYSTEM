@@ -1,0 +1,158 @@
+openapi: 3.0.4
+
+info:
+  title: CAB System - Trip API
+  description: API quản lý và theo dõi chuyến đi
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api
+
+tags:
+  - name: Trip
+    description: Quản lý trạng thái chuyến đi
+
+paths:
+
+  /trips/{tripId}:
+    get:
+      tags:
+        - Trip
+      summary: Theo dõi chuyến đi
+      operationId: getTrip
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: tripId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: TRIP001
+
+      responses:
+        "200":
+          description: Thông tin chuyến đi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trip"
+
+  /trips/{tripId}/status:
+    patch:
+      tags:
+        - Trip
+      summary: Cập nhật trạng thái chuyến
+      operationId: updateTripStatus
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: tripId
+          in: path
+          required: true
+          schema:
+            type: string
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - DRIVER_ARRIVING
+                    - DRIVER_ARRIVED
+                    - PASSENGER_PICKED_UP
+                    - IN_PROGRESS
+                    - COMPLETED
+                    - CANCELLED
+                  example: DRIVER_ARRIVED
+
+      responses:
+        "200":
+          description: Cập nhật trạng thái thành công
+
+        "400":
+          description: Chuyển trạng thái không hợp lệ
+
+        "403":
+          description: Không có quyền cập nhật
+
+  /trips/{tripId}/location:
+    get:
+      tags:
+        - Trip
+      summary: Lấy vị trí tài xế
+      operationId: getDriverLocation
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: tripId
+          in: path
+          required: true
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: Vị trí hiện tại của tài xế
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Trip:
+      type: object
+      properties:
+        id:
+          type: string
+          example: TRIP001
+        bookingId:
+          type: string
+          example: BOOK001
+        customerId:
+          type: string
+          example: CUS001
+        driverId:
+          type: string
+          example: DRV001
+        status:
+          type: string
+          example: IN_PROGRESS
+        estimatedArrivalTime:
+          type: string
+          format: date-time
+
+    Location:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 10.7769
+        longitude:
+          type: number
+          format: double
+          example: 106.7009
+        updatedAt:
+          type: string
+          format: date-time
