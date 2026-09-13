@@ -1,0 +1,98 @@
+openapi: 3.0.4
+
+info:
+  title: CAB System - Customer API
+  description: API quản lý khách hàng
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api
+
+tags:
+  - name: Customer
+    description: Quản lý thông tin khách hàng
+
+paths:
+
+  /customers/me:
+    get:
+      tags:
+        - Customer
+      summary: Xem thông tin cá nhân
+      operationId: getMyProfile
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        "200":
+          description: Thông tin khách hàng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+
+        "401":
+          description: Chưa xác thực
+
+    put:
+      tags:
+        - Customer
+      summary: Cập nhật thông tin cá nhân
+      operationId: updateMyProfile
+
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullName:
+                  type: string
+                  example: Nguyen Van An
+                email:
+                  type: string
+                  format: email
+                  example: an@gmail.com
+                address:
+                  type: string
+                  example: Ho Chi Minh City
+
+      responses:
+        "200":
+          description: Cập nhật thành công
+        "400":
+          description: Dữ liệu không hợp lệ
+        "401":
+          description: Chưa xác thực
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          example: CUS001
+        fullName:
+          type: string
+          example: Nguyen Van An
+        phone:
+          type: string
+          example: "0901234567"
+        email:
+          type: string
+          example: an@gmail.com
+        address:
+          type: string
+          example: Ho Chi Minh City
