@@ -1,0 +1,160 @@
+openapi: 3.0.4
+
+info:
+  title: CAB System - Payment API
+  description: API tính cước và thanh toán
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api
+
+tags:
+  - name: Payment
+    description: Tính cước và xử lý thanh toán
+
+paths:
+
+  /payments/fare/{tripId}:
+    get:
+      tags:
+        - Payment
+      summary: Tính cước chuyến đi
+      operationId: calculateFare
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: tripId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: TRIP001
+
+      responses:
+        "200":
+          description: Thông tin cước
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fare"
+
+        "400":
+          description: Chuyến chưa hoàn thành
+
+  /payments:
+    post:
+      tags:
+        - Payment
+      summary: Thực hiện thanh toán
+      operationId: createPayment
+
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tripId
+                - method
+              properties:
+                tripId:
+                  type: string
+                  example: TRIP001
+                method:
+                  type: string
+                  enum:
+                    - CASH
+                    - ELECTRONIC
+                  example: ELECTRONIC
+
+      responses:
+        "201":
+          description: Tạo giao dịch thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+        "400":
+          description: Thanh toán thất bại
+
+  /payments/{paymentId}:
+    get:
+      tags:
+        - Payment
+      summary: Tra cứu giao dịch
+      operationId: getPayment
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: Thông tin giao dịch
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Fare:
+      type: object
+      properties:
+        tripId:
+          type: string
+          example: TRIP001
+        amount:
+          type: number
+          format: double
+          example: 85000
+        currency:
+          type: string
+          example: VND
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          example: PAY001
+        tripId:
+          type: string
+          example: TRIP001
+        amount:
+          type: number
+          format: double
+          example: 85000
+        method:
+          type: string
+          enum:
+            - CASH
+            - ELECTRONIC
+        status:
+          type: string
+          enum:
+            - PENDING
+            - SUCCESS
+            - FAILED
+        createdAt:
+          type: string
+          format: date-time
