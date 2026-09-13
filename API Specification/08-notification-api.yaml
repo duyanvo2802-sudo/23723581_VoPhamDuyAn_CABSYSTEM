@@ -1,0 +1,128 @@
+openapi: 3.0.4
+
+info:
+  title: CAB System - Notification API
+  description: API quản lý thông báo
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api
+
+tags:
+  - name: Notification
+    description: Gửi và quản lý thông báo
+
+paths:
+
+  /notifications:
+    get:
+      tags:
+        - Notification
+      summary: Xem danh sách thông báo
+      operationId: getNotifications
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        "200":
+          description: Danh sách thông báo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/{notificationId}/read:
+    patch:
+      tags:
+        - Notification
+      summary: Đánh dấu thông báo đã đọc
+      operationId: markNotificationRead
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: NOTI001
+
+      responses:
+        "200":
+          description: Đã đánh dấu thông báo
+
+  /notifications/send:
+    post:
+      tags:
+        - Notification
+      summary: Gửi thông báo
+      operationId: sendNotification
+
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NotificationRequest"
+
+      responses:
+        "202":
+          description: Yêu cầu gửi thông báo đã được tiếp nhận
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    NotificationRequest:
+      type: object
+      required:
+        - receiverId
+        - type
+        - message
+      properties:
+        receiverId:
+          type: string
+          example: CUS001
+        type:
+          type: string
+          enum:
+            - BOOKING_RECEIVED
+            - DRIVER_ASSIGNED
+            - DRIVER_ARRIVED
+            - TRIP_COMPLETED
+            - PAYMENT_RESULT
+            - TRIP_CHANGED
+            - TRIP_CANCELLED
+        message:
+          type: string
+          example: Tài xế đã đến điểm đón.
+
+    Notification:
+      allOf:
+        - $ref: "#/components/schemas/NotificationRequest"
+        - type: object
+          properties:
+            id:
+              type: string
+              example: NOTI001
+            status:
+              type: string
+              enum:
+                - SENT
+                - READ
+                - FAILED
+            createdAt:
+              type: string
+              format: date-time
