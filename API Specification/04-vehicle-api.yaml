@@ -1,0 +1,133 @@
+openapi: 3.0.4
+
+info:
+  title: CAB System - Vehicle API
+  description: API quản lý phương tiện
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api
+
+tags:
+  - name: Vehicle
+    description: Quản lý phương tiện
+
+paths:
+
+  /vehicles:
+    post:
+      tags:
+        - Vehicle
+      summary: Thêm phương tiện
+      operationId: createVehicle
+
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VehicleRequest"
+
+      responses:
+        "201":
+          description: Tạo phương tiện thành công
+        "400":
+          description: Dữ liệu không hợp lệ
+
+  /vehicles/{vehicleId}:
+    get:
+      tags:
+        - Vehicle
+      summary: Xem thông tin phương tiện
+      operationId: getVehicle
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: vehicleId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: VEH001
+
+      responses:
+        "200":
+          description: Thông tin phương tiện
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+
+        "404":
+          description: Không tìm thấy phương tiện
+
+    put:
+      tags:
+        - Vehicle
+      summary: Cập nhật phương tiện
+      operationId: updateVehicle
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - name: vehicleId
+          in: path
+          required: true
+          schema:
+            type: string
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VehicleRequest"
+
+      responses:
+        "200":
+          description: Cập nhật thành công
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    VehicleRequest:
+      type: object
+      required:
+        - licensePlate
+        - vehicleType
+        - model
+      properties:
+        licensePlate:
+          type: string
+          example: "51A-12345"
+        vehicleType:
+          type: string
+          example: CAR
+        model:
+          type: string
+          example: Toyota Vios
+
+    Vehicle:
+      allOf:
+        - $ref: "#/components/schemas/VehicleRequest"
+        - type: object
+          properties:
+            id:
+              type: string
+              example: VEH001
+            status:
+              type: string
+              enum:
+                - ACTIVE
+                - INACTIVE
